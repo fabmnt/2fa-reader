@@ -32,3 +32,4 @@ GET
 - Frontend: React y react router o tanstack router.
 - Backend: NodeJS y Express.
 - Base de datos: Supabase.
+- ORM: drizzle.
