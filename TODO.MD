@@ -1,7 +1,7 @@
 # TODO
 
 ## Backend
-- Set up de autenticación,ORM y base de datos.
+- Set up de autenticación, ORM y base de datos.
 - CRUD de endpoints para matches
   - GET /matches
   - GET /matches/:id
