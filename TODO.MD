@@ -29,7 +29,7 @@ GET
 
 ## Dependencias
 - Auth: Better Auth.
-- Frontend: React y react router o tanstack router.
+- Frontend: React y react router, tanstack router o Nextjs.
 - Backend: NodeJS y Express.
 - Base de datos: Supabase.
 - ORM: drizzle.
