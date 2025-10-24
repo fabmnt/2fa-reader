@@ -1,7 +1,7 @@
 # TODO
 
 ## Backend
-- Set up de autenticación
+- Set up de autenticación,ORM y base de datos.
 - CRUD de endpoints para matches
   - GET /matches
   - GET /matches/:id
@@ -9,14 +9,14 @@
   - PUT /matches/:id
   - DELETE /matches/:id
 
-- CRUD de endpoints para accounts (autenticados)
+- CRUD de endpoints para accounts
   - GET /accounts
   - GET /accounts/:id
   - POST /accounts
   - PUT /accounts/:id
   - DELETE /accounts/:id
 
-- Terminar el endpoint principal /api/reader (autenticado)
+- Terminar el endpoint principal /api/reader
 ```
 GET
 /api/reader/:matchId/:accountId
@@ -27,7 +27,7 @@ GET
 - Crear página de CRUD para los matches y cuentas. (Autenticado)
 
 
-### Dependencias
+## Dependencias
 - Auth: Better Auth.
 - Frontend: React y react router o tanstack router.
 - Backend: NodeJS y Express.
