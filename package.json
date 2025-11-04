@@ -6,7 +6,8 @@
   "main": "./dist/main.js",
   "scripts": {
     "dev": "tsx watch --env-file=.env src/main.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "db:push": "drizzle-kit push"
   },
   "keywords": [],
   "author": "",
@@ -18,14 +19,18 @@
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.8.1",
     "@types/user-agents": "^1.0.4",
+    "drizzle-kit": "^0.31.6",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
     "morgan": "^1.10.1",
     "playwright": "^1.56.1",
+    "postgres": "^3.4.7",
     "user-agents": "^1.1.669"
   }
 }
