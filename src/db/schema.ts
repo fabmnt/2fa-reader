@@ -18,7 +18,7 @@ export const matchesTable = pgTable("matches", {
 
 export const credentialsTable = pgTable("credentials", {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
-	email: text().notNull(),
+	email: text().notNull().unique(),
 	password: text().notNull(),
 	createdAt: timestamp().notNull().defaultNow(),
 	updatedAt: timestamp().notNull().defaultNow(),
