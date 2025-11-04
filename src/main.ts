@@ -3,11 +3,14 @@ import express from "express";
 import morgan from "morgan";
 import { chromium } from "playwright";
 import UserAgent from "user-agents";
+import matchesRouter from "./routes/matches";
 
 const app = express();
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/matches", matchesRouter);
 
 app.get("/", async (_, res) => {
 	console.log("Launching browser");
