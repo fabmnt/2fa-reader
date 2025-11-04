@@ -3,6 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import { chromium } from "playwright";
 import UserAgent from "user-agents";
+import credentialsRouter from "./routes/credentials";
 import matchesRouter from "./routes/matches";
 
 const app = express();
@@ -11,6 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/matches", matchesRouter);
+app.use("/api/credentials", credentialsRouter);
 
 app.get("/", async (_, res) => {
 	console.log("Launching browser");

@@ -15,3 +15,11 @@ export const matchesTable = pgTable("matches", {
 	createdAt: timestamp().notNull().defaultNow(),
 	updatedAt: timestamp().notNull().defaultNow(),
 });
+
+export const credentialsTable = pgTable("credentials", {
+	id: integer().primaryKey().generatedAlwaysAsIdentity(),
+	email: text().notNull(),
+	password: text().notNull(),
+	createdAt: timestamp().notNull().defaultNow(),
+	updatedAt: timestamp().notNull().defaultNow(),
+});
