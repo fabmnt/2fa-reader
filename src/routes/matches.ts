@@ -30,48 +30,55 @@ router.get("/:id", async (req, res) => {
 			return res.status(400).json({ error: "Invalid ID" });
 		}
 
-		const match = await db
+		const [match] = await db
 			.select()
 			.from(matchesTable)
 			.where(eq(matchesTable.id, id))
 			.limit(1);
 
-		if (match.length === 0) {
+		if (!match) {
 			return res.status(404).json({ error: "Match not found" });
 		}
 
-		const response: APIResponse<(typeof match)[0]> = {
-			data: match[0]!,
+		const response: APIResponse<typeof match> = {
+			data: match,
 			message: "Match fetched successfully",
 		};
 		res.json(response);
-	} catch (error) {
-		console.error("Error fetching match:", error);
-		res.status(500).json({ error: "Failed to fetch match" });
+	} catch (_) {
+		const response: APIResponse = {
+			error: "Failed to fetch match",
+		};
+		res.status(500).json(response);
 	}
 });
 
 // POST create new match
 router.post("/", async (req, res) => {
 	try {
-		const validatedData = matchesInsertSchema.parse(req.body);
-		const newMatch = await db
-			.insert(matchesTable)
-			.values(validatedData)
-			.returning();
+		const { success, data, error } = matchesInsertSchema.safeParse(req.body);
+		if (!success) {
+			return res.status(400).json({
+				error: "Validation failed",
+				details: error.issues.map((issue) => issue.message).join(". "),
+			});
+		}
+		const newMatch = await db.insert(matchesTable).values(data).returning();
 
-		const response: APIResponse<(typeof newMatch)[0]> = {
-			data: newMatch[0]!,
+		if (!newMatch) {
+			return res.status(500).json({ error: "Failed to create match" });
+		}
+
+		const response: APIResponse<typeof newMatch> = {
+			data: newMatch,
 			message: "Match created successfully",
 		};
 		res.status(201).json(response);
-	} catch (error) {
-		if (error instanceof Error && error.name === "ZodError") {
-			return res
-				.status(400)
-				.json({ error: "Validation failed", details: error });
-		}
-		res.status(500).json({ error: "Failed to create match" });
+	} catch (_) {
+		const response: APIResponse = {
+			error: "Failed to create match",
+		};
+		res.status(500).json(response);
 	}
 });
 
@@ -84,36 +91,41 @@ router.put("/:id", async (req, res) => {
 		}
 
 		// Validate the request body
-		const validatedData = matchesInsertSchema.partial().parse(req.body);
+		const { success, data, error } = matchesInsertSchema
+			.partial()
+			.safeParse(req.body);
+
+		if (!success) {
+			return res.status(400).json({
+				error: "Validation failed",
+				details: error.issues.map((issue) => issue.message).join(". "),
+			});
+		}
 
 		// Update the updatedAt timestamp
 		const updateData = {
-			...validatedData,
+			...data,
 			updatedAt: new Date(),
 		};
 
-		const updatedMatch = await db
+		const [updatedMatch] = await db
 			.update(matchesTable)
 			.set(updateData)
 			.where(eq(matchesTable.id, id))
 			.returning();
 
-		if (updatedMatch.length === 0) {
+		if (!updatedMatch) {
 			return res.status(404).json({ error: "Match not found" });
 		}
 
-		const response: APIResponse<(typeof updatedMatch)[0]> = {
-			data: updatedMatch[0]!,
+		const response: APIResponse<typeof updatedMatch> = {
+			data: updatedMatch,
 			message: "Match updated successfully",
 		};
 		res.json(response);
-	} catch (error) {
-		if (error instanceof Error && error.name === "ZodError") {
-			return res
-				.status(400)
-				.json({ error: "Validation failed", details: error });
-		}
-		res.status(500).json({ error: "Failed to update match" });
+	} catch (_) {
+		const response: APIResponse = { error: "Failed to update match" };
+		res.status(500).json(response);
 	}
 });
 
@@ -125,23 +137,23 @@ router.delete("/:id", async (req, res) => {
 			return res.status(400).json({ error: "Invalid ID" });
 		}
 
-		const deletedMatch = await db
+		const [deletedMatch] = await db
 			.delete(matchesTable)
 			.where(eq(matchesTable.id, id))
 			.returning();
 
-		if (deletedMatch.length === 0) {
+		if (!deletedMatch) {
 			return res.status(404).json({ error: "Match not found" });
 		}
 
-		const response: APIResponse<(typeof deletedMatch)[0]> = {
-			data: deletedMatch[0]!,
+		const response: APIResponse<typeof deletedMatch> = {
+			data: deletedMatch,
 			message: "Match deleted successfully",
 		};
 		res.json(response);
-	} catch (error) {
-		console.error("Error deleting match:", error);
-		res.status(500).json({ error: "Failed to delete match" });
+	} catch (_) {
+		const response: APIResponse = { error: "Failed to delete match" };
+		res.status(500).json(response);
 	}
 });
 

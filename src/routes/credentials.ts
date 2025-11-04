@@ -54,23 +54,33 @@ router.get("/:id", async (req, res) => {
 // POST create new credential
 router.post("/", async (req, res) => {
 	try {
-		const validatedData = credentialsInsertSchema.parse(req.body);
-		const newCredential = await db
+		const { success, data, error } = credentialsInsertSchema.safeParse(
+			req.body,
+		);
+
+		if (!success) {
+			return res.status(400).json({
+				error: "Validation failed",
+				details: error.issues.map((issue) => issue.message).join(". "),
+			});
+		}
+
+		const [newCredential] = await db
 			.insert(credentialsTable)
-			.values(validatedData)
+			.values(data)
 			.returning();
 
-		const response: APIResponse<(typeof newCredential)[0]> = {
-			data: newCredential[0]!,
+		if (!newCredential) {
+			return res.status(500).json({ error: "Failed to create credential" });
+		}
+
+		const response: APIResponse<typeof newCredential> = {
+			data: newCredential,
 			message: "Credential created successfully",
 		};
+
 		res.status(201).json(response);
-	} catch (error) {
-		if (error instanceof Error && error.name === "ZodError") {
-			return res
-				.status(400)
-				.json({ error: "Validation failed", details: error });
-		}
+	} catch (_) {
 		res.status(500).json({ error: "Failed to create credential" });
 	}
 });
@@ -84,36 +94,44 @@ router.put("/:id", async (req, res) => {
 		}
 
 		// Validate the request body
-		const validatedData = credentialsInsertSchema.partial().parse(req.body);
+		const { success, data, error } = credentialsInsertSchema
+			.omit({ createdAt: true, updatedAt: true })
+			.partial()
+			.safeParse(req.body);
+
+		if (!success) {
+			return res.status(400).json({
+				error: "Validation failed",
+				details: error.issues.map((issue) => issue.message).join(". "),
+			});
+		}
 
 		// Update the updatedAt timestamp
 		const updateData = {
-			...validatedData,
+			...data,
 			updatedAt: new Date(),
 		};
 
-		const updatedCredential = await db
+		const [updatedCredential] = await db
 			.update(credentialsTable)
 			.set(updateData)
 			.where(eq(credentialsTable.id, id))
 			.returning();
 
-		if (updatedCredential.length === 0) {
+		if (!updatedCredential) {
 			return res.status(404).json({ error: "Credential not found" });
 		}
 
-		const response: APIResponse<(typeof updatedCredential)[0]> = {
-			data: updatedCredential[0]!,
+		const response: APIResponse<typeof updatedCredential> = {
+			data: updatedCredential,
 			message: "Credential updated successfully",
 		};
 		res.json(response);
-	} catch (error) {
-		if (error instanceof Error && error.name === "ZodError") {
-			return res
-				.status(400)
-				.json({ error: "Validation failed", details: error });
-		}
-		res.status(500).json({ error: "Failed to update credential" });
+	} catch (_) {
+		const response: APIResponse = {
+			error: "Failed to update credential",
+		};
+		res.status(500).json(response);
 	}
 });
 
@@ -125,23 +143,25 @@ router.delete("/:id", async (req, res) => {
 			return res.status(400).json({ error: "Invalid ID" });
 		}
 
-		const deletedCredential = await db
+		const [deletedCredential] = await db
 			.delete(credentialsTable)
 			.where(eq(credentialsTable.id, id))
 			.returning();
 
-		if (deletedCredential.length === 0) {
+		if (!deletedCredential) {
 			return res.status(404).json({ error: "Credential not found" });
 		}
 
-		const response: APIResponse<(typeof deletedCredential)[0]> = {
-			data: deletedCredential[0]!,
+		const response: APIResponse<typeof deletedCredential> = {
+			data: deletedCredential,
 			message: "Credential deleted successfully",
 		};
 		res.json(response);
-	} catch (error) {
-		console.error("Error deleting credential:", error);
-		res.status(500).json({ error: "Failed to delete credential" });
+	} catch (_) {
+		const response: APIResponse = {
+			error: "Failed to delete credential",
+		};
+		res.status(500).json(response);
 	}
 });
 
