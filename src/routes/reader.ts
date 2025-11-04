@@ -15,9 +15,13 @@ const readerSchema = z.object({
 router.get("/:matchId/:credentialId", async (req, res) => {
 	const { success, data, error } = readerSchema.safeParse(req.params);
 	if (!success) {
-		return res
-			.status(400)
-			.json({ error: "Invalid request", details: error.message });
+		return res.status(400).json({
+			error: "Invalid request",
+			details: error.issues.map((issue) => ({
+				field: issue.path.join("."),
+				message: issue.message,
+			})),
+		});
 	}
 
 	const { matchId, credentialId } = data;

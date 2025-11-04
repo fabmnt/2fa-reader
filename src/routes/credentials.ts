@@ -61,7 +61,10 @@ router.post("/", async (req, res) => {
 		if (!success) {
 			return res.status(400).json({
 				error: "Validation failed",
-				details: error.issues.map((issue) => issue.message).join(". "),
+				details: error.issues.map((issue) => ({
+					field: issue.path.join("."),
+					message: issue.message,
+				})),
 			});
 		}
 
@@ -102,7 +105,10 @@ router.put("/:id", async (req, res) => {
 		if (!success) {
 			return res.status(400).json({
 				error: "Validation failed",
-				details: error.issues.map((issue) => issue.message).join(". "),
+				details: error.issues.map((issue) => ({
+					field: issue.path.join("."),
+					message: issue.message,
+				})),
 			});
 		}
 

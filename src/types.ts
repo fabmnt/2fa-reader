@@ -5,5 +5,8 @@ export type APIResponse<T = undefined> =
 	  }
 	| {
 			error: string;
-			details?: string;
+			details?: Array<{
+				field: string;
+				message: string;
+			}>;
 	  };
